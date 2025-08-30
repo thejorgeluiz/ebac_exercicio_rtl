@@ -1,10 +1,53 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import Post from '.';
-import PostComment from '.';
+import { render, screen, fireEvent } from "@testing-library/react";
+import PostComments from "./index";
 
-describe('Teste para o componente PostComment', () => {
-    it('Deve renderizar o componente corretamente', () => {
-        render(<PostComment/>);
-        expect(screen.getByText('Comentar')).toBeInTheDocument();
+describe("PostComments Component", () => {
+  test("should add two comments correctly", () => {
+    render(<PostComments />);
+
+    const textareaElement = screen.getByTestId(
+      "comment-input"
+    ) as HTMLTextAreaElement;
+    const buttonElement = screen.getByTestId("submit-button");
+    const formElement = screen.getByTestId("comment-form");
+
+    fireEvent.change(textareaElement, {
+      target: { value: "Primeiro comentário de teste" },
     });
+    fireEvent.submit(formElement);
+
+    expect(
+      screen.getByText("Primeiro comentário de teste")
+    ).toBeInTheDocument();
+    expect(textareaElement.value).toBe("");
+
+    fireEvent.change(textareaElement, {
+      target: { value: "Segundo comentário de teste" },
+    });
+    fireEvent.submit(formElement);
+
+    expect(
+      screen.getByText("Primeiro comentário de teste")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Segundo comentário de teste")).toBeInTheDocument();
+
+    const commentItems = screen.getAllByTestId("comment-item");
+    expect(commentItems).toHaveLength(2);
+  });
+
+  test("should clear textarea after submitting comment", () => {
+    render(<PostComments />);
+
+    const textareaElement = screen.getByTestId(
+      "comment-input"
+    ) as HTMLTextAreaElement;
+    const formElement = screen.getByTestId("comment-form");
+
+    fireEvent.change(textareaElement, {
+      target: { value: "Comentário teste" },
+    });
+    fireEvent.submit(formElement);
+
+    expect(textareaElement.value).toBe("");
+  });
 });
